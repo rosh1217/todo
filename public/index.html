@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo Master</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <i class="fas fa-check-double"></i>
+        <span>Todo Master</span>
+      </div>
+      <div class="nav-controls">
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTAINER ===== -->
+  <div class="container">
+
+    <!-- STATS SECTION -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total"><i class="fas fa-list-ul"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="totalTasks">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon completed"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="completedTasks">0</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon pending"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="pendingTasks">0</span>
+          <span class="stat-label">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODO FORM -->
+    <div class="todo-form-container">
+      <form id="todoForm" class="todo-form">
+        <div class="form-row">
+          <input type="text" id="todoInput" placeholder="What do you need to do?" required />
+          <button type="submit" id="addBtn">
+            <i class="fas fa-plus"></i> Add
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SEARCH & FILTER -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search todos..." />
+      </div>
+      <div class="filter-box">
+        <select id="filterSelect">
+          <option value="all">All</option>
+          <option value="completed">Completed</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- LOADING SPINNER -->
+    <div id="loadingSpinner" class="loading-spinner">
+      <i class="fas fa-spinner fa-pulse"></i>
+      <span>Loading...</span>
+    </div>
+
+    <!-- TODO LIST -->
+    <ul id="todoList" class="todo-list"></ul>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state">
+      <svg viewBox="0 0 200 200" width="120" height="120">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="8 8" opacity="0.3" />
+        <path d="M70 100 L90 120 L130 80" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6" />
+        <circle cx="70" cy="70" r="6" fill="currentColor" opacity="0.3" />
+        <circle cx="130" cy="70" r="6" fill="currentColor" opacity="0.3" />
+        <path d="M60 60 Q100 40 140 60" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4" />
+      </svg>
+      <p>No tasks yet. Add one above!</p>
+    </div>
+  </div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ===== CONFIRM DELETE MODAL ===== -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+      <p>Are you sure you want to delete this todo?</p>
+      <p class="modal-todo-title" id="modalTodoTitle"></p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">Cancel</button>
+        <button class="btn-danger" id="modalConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
