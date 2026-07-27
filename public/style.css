@@ -670,18 +670,15 @@ body.dark-mode .modal-actions .btn-cancel {
     width: 100%;
   }
   .todo-item {
-    flex-wrap: wrap;
     padding: 14px 16px;
   }
   .todo-item .todo-content {
-    order: 1;
-    flex: 1 1 100%;
+    flex: 1;
   }
   .todo-item .todo-check {
-    order: 0;
+    flex-shrink: 0;
   }
   .todo-item .todo-actions {
-    order: 2;
     margin-left: auto;
   }
   .modal-box {

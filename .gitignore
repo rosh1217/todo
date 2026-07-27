@@ -1,0 +1,4 @@
+node_modules/
+database/data.json
+*.tmp
+.env
