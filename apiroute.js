@@ -4,20 +4,38 @@ const path = require('path');
 const crypto = require('crypto');
 
 const router = express.Router();
-// Use __dirname to reliably locate the database folder
-const DATA_FILE = path.join(__dirname, 'database', 'data.json');
+
+const IS_VERCEL = process.env.VERCEL === '1';
+const ORIGINAL_DATA_FILE = path.join(__dirname, 'database', 'data.json');
+const DATA_FILE = IS_VERCEL ? path.join('/tmp', 'data.json') : ORIGINAL_DATA_FILE;
+
+// Memory cache for Vercel since /tmp might get wiped between invocations
+let memoryTodos = null;
 
 // Helper to read data safely
 async function getTodos() {
+  if (IS_VERCEL && memoryTodos !== null) {
+    return memoryTodos;
+  }
   try {
     const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (IS_VERCEL) memoryTodos = parsed;
+    return parsed;
   } catch (error) {
     if (error.code === 'ENOENT') {
-      // File doesn't exist, return empty array
+      if (IS_VERCEL) {
+        try {
+          const originalData = await fs.readFile(ORIGINAL_DATA_FILE, 'utf8');
+          const parsed = JSON.parse(originalData);
+          memoryTodos = parsed;
+          return parsed;
+        } catch (e) {
+          // Fallback if original doesn't exist
+        }
+      }
       return [];
     }
-    // Handle invalid JSON gracefully
     if (error instanceof SyntaxError) {
       console.error('Data file is corrupted. Returning empty array.');
       return [];
@@ -28,15 +46,14 @@ async function getTodos() {
 
 // Helper to write data safely
 async function saveTodos(todos) {
+  if (IS_VERCEL) {
+    memoryTodos = todos;
+  }
   try {
-    // Write to a temporary file first to prevent corruption on crash
     const tempFile = `${DATA_FILE}.tmp`;
     await fs.writeFile(tempFile, JSON.stringify(todos, null, 2), 'utf8');
     await fs.rename(tempFile, DATA_FILE);
   } catch (error) {
-    // On Vercel, the file system is read-only except for /tmp.
-    // If it fails with EROFS, we log it but don't crash, 
-    // as we must try to support Vercel while using local file storage.
     console.error('Failed to save data.json:', error.message);
     if (error.code !== 'EROFS') {
       throw error;

@@ -257,52 +257,88 @@ todoList.addEventListener('click', async (e) => {
     // Initiate inline edit
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
+    
     // Find the todo-item and replace title with input
     const item = target.closest('.todo-item');
     const titleSpan = item.querySelector('.todo-title');
+    
+    // Prevent errors if already in edit mode (titleSpan will be null)
+    if (!titleSpan) return;
+
     const currentTitle = todo.title;
     // Create input
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'edit-input';
     input.value = currentTitle;
+    
     // Replace span with input
     titleSpan.replaceWith(input);
+    
+    // Change edit button to save button
+    const editBtn = item.querySelector('.edit-btn');
+    const originalEditHtml = editBtn.innerHTML;
+    editBtn.innerHTML = '<i class="fas fa-check"></i>';
+    editBtn.classList.add('save-btn');
+    editBtn.dataset.action = 'save-edit'; // change action so it doesn't trigger 'edit' again
+
     input.focus();
     input.select();
 
-    // Handle blur and keypress to save
+    let isSaving = false;
+
+    // Handle save
     const saveEdit = async () => {
+      if (isSaving) return;
+      isSaving = true;
+      
       const newTitle = input.value.trim();
       if (newTitle === '') {
         showToast('Title cannot be empty', 'error');
-        // revert
         input.replaceWith(titleSpan);
-        return;
-      }
-      if (newTitle !== currentTitle) {
+      } else if (newTitle !== currentTitle) {
         try {
           await updateTodo(id, { title: newTitle });
+          // If successful, renderTodos() will re-render this item, so no need to restore manually
+          return;
         } catch (error) {
-          // revert on error
+          // Revert on error
           input.replaceWith(titleSpan);
         }
       } else {
-        // no change, revert
+        // No change, revert
         input.replaceWith(titleSpan);
       }
+      
+      // Restore edit button if not re-rendered
+      editBtn.innerHTML = originalEditHtml;
+      editBtn.classList.remove('save-btn');
+      editBtn.dataset.action = 'edit';
     };
 
-    input.addEventListener('blur', saveEdit);
+    input.addEventListener('blur', () => {
+      // Delay slightly so click event on save button can fire if clicked
+      setTimeout(saveEdit, 150);
+    });
+    
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        input.blur();
+        saveEdit();
       }
       if (e.key === 'Escape') {
         input.replaceWith(titleSpan);
+        editBtn.innerHTML = originalEditHtml;
+        editBtn.classList.remove('save-btn');
+        editBtn.dataset.action = 'edit';
       }
     });
+  } else if (action === 'save-edit') {
+    // Clicking the save button will trigger input blur anyway, 
+    // but just to be safe, we can manually trigger focus out
+    const item = target.closest('.todo-item');
+    const input = item.querySelector('.edit-input');
+    if (input) input.blur();
   }
 });
 
